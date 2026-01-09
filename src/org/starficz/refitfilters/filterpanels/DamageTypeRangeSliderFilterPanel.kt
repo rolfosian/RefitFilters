@@ -274,7 +274,7 @@ fun UIPanelAPI.createDamageTypeRangeSliderFilterPanel(
                     upperNodeHovered = false
                 }
 
-                onHeld { event ->
+                onMouseHeld { event ->
                     val nodeStartCenterXPos = left + minBarLeftPad + tickThickness/2
                     val lowerNodeXPos = mapRangeToXOffset(lowerRange) + nodeStartCenterXPos
                     val upperNodeXPos = mapRangeToXOffset(upperRange) + nodeStartCenterXPos

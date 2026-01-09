@@ -198,6 +198,22 @@ fun UIPanelAPI.createSearchBarFilterPanel(
                         }
                     }
                 }
+
+                onKeyHeld { event ->
+                    if (event.eventValue == Keyboard.KEY_BACK) {
+                        if (event.isShiftDown) deleteAll(event)
+                        else if (event.isCtrlDown) deleteLastWord(event)
+                        else deleteCharIfPossible(event)
+                        event.consume()
+
+                    } else if (!event.isCtrlDown && !event.isAltDown && event.eventValue !in (2..11) &&
+                        event.eventValue != Keyboard.KEY_RETURN && event.eventValue != Keyboard.KEY_NUMPADENTER
+                    ) {
+                        if (appendCharIfPossible(event.eventChar)) {
+                            event.consume()
+                        }
+                    }
+                }
             }
         }
     }
