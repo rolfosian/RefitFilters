@@ -5,7 +5,8 @@ import com.fs.starfarer.api.input.InputEventAPI
 import com.fs.starfarer.api.ui.UIPanelAPI
 import com.fs.starfarer.title.TitleScreenState
 import com.fs.state.AppDriver
-import org.starficz.UIFramework.ReflectionUtils.invoke
+
+import rolflectionlib.ui.UiUtil
 
 
 class CombatUIAdderScript : BaseEveryFrameCombatPlugin() {
@@ -14,7 +15,7 @@ class CombatUIAdderScript : BaseEveryFrameCombatPlugin() {
         val state = AppDriver.getInstance().currentState
         if (state !is TitleScreenState) return
 
-        val core = state.invoke("getScreenPanel") as? UIPanelAPI ?: return
+        val core = UiUtil.utils.titleScreenStateGetScreenPanel(state) as? UIPanelAPI ?: return
 
         FilterPanelCreator.modifyFilterPanels(core, openedFromCampaign = false, docked = false)
     }

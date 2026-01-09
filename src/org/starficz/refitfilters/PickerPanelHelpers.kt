@@ -3,25 +3,25 @@ package org.starficz.refitfilters
 import com.fs.starfarer.api.Global
 import com.fs.starfarer.api.ui.UIComponentAPI
 import com.fs.starfarer.api.ui.UIPanelAPI
+import com.fs.starfarer.coreui.refit.FighterPickerDialog
+import com.fs.starfarer.coreui.refit.WeaponPickerDialog
 import org.starficz.UIFramework.*
-import org.starficz.UIFramework.ReflectionUtils.get
-import org.starficz.UIFramework.ReflectionUtils.getFieldsMatching
-import org.starficz.UIFramework.ReflectionUtils.invoke
+import rolflectionlib.ui.UiUtil
 
 object PickerPanelHelpers {
-    fun filtersChanged(pickerPanel: UIPanelAPI){
-        pickerPanel.invoke("notifyFilterChanged")
+    fun filtersChanged(pickerPanel: UIPanelAPI) {
+        when (pickerPanel) {
+            is FighterPickerDialog -> pickerPanel.notifyFilterChanged()
+            is WeaponPickerDialog -> pickerPanel.notifyFilterChanged()
+        }
     }
 
-    fun setPickerPanelHeight(height: Float, pickerPanel: UIPanelAPI) {
-        val knownFloatNames = listOf("PAD", "ITEM_WIDTH", "ITEM_HEIGHT", "origXAlignOffset")
-        val knownFloatValues = listOf(382f, 385f, 0f)
+    fun setPickerPanelHeight(height: Float, pickerPanel: UIPanelAPI, type: PickerPanelType) {
+        val holoHeightHandle = if (type == PickerPanelType.Fighters) {
+            UiUtil.fighterPickerHeightVarHandle
+        } else UiUtil.weaponPickerHeightVarHandle
 
-        val holoHeightField = pickerPanel.getFieldsMatching(type = Float::class.java)
-            .singleOrNull { it.name !in knownFloatNames && it.get(pickerPanel) !in knownFloatValues }
-            ?: throw Exception("Unable to differentiate weaponPickerDialog's obf float fields")
-
-        holoHeightField.set(pickerPanel, height)
+        holoHeightHandle.set(pickerPanel, height)
         pickerPanel.height = height
 
         // pin the weapons list in place
@@ -37,19 +37,24 @@ object PickerPanelHelpers {
     }
 
     fun <T: Any, R: FilterData> sortAndFilterList(
+        type: PickerPanelType,
         uiList: UIComponentAPI,
-        specClass: Class<T>,
         filterFunction: (T, R) -> Boolean,
         filterData: R,
         comparator: Comparator<Pair<Any, T>>,
         searchTerm: String,
         searchBehaviour: String // e.g., "Filter", "SortAndFilter", etc.
     ): List<Pair<Any, T>> {
-        val individualItems = uiList.invoke("getItems") as List<*>
+        val individualItems = UiUtil.utils.listPanelGetItems(uiList)
 
-        val specPairs: List<Pair<Any, T>> = individualItems.mapNotNull { item ->
-            val tooltip = item!!.invoke("getTooltip")!!
-            item to tooltip.get(type = specClass) as T
+        val handle = when (type) {
+            PickerPanelType.Fighters -> UiUtil.tooltipFighterSpecVarHandle
+            PickerPanelType.Weapons  -> UiUtil.tooltipWeaponSpecVarHandle
+        }
+
+        val specPairs = individualItems.map { item ->
+            val tooltip = UiUtil.utils.uiComponentGetTooltip(item!!)
+            item to handle.get(tooltip) as T
         }
 
         var processedSpecPairs = specPairs.filter { (_, spec) ->!filterFunction(spec, filterData) }
@@ -58,9 +63,9 @@ object PickerPanelHelpers {
             processedSpecPairs = processedSpecPairs.sortedWith(comparator)
         }
 
-        uiList.invoke("clear")
+        UiUtil.utils.listPanelClear(uiList)
         for (pair in processedSpecPairs) {
-            uiList.invoke("addItem", pair.first)
+            UiUtil.utils.listPanelAddItem(uiList, pair.first as UIComponentAPI)
         }
 
         return processedSpecPairs

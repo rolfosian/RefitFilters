@@ -7,16 +7,15 @@ import com.fs.starfarer.api.loading.WeaponSpecAPI
 import com.fs.starfarer.api.ui.CustomPanelAPI
 import com.fs.starfarer.api.ui.UIPanelAPI
 import com.fs.starfarer.api.util.Misc
-import org.starficz.UIFramework.ReflectionUtils.invoke
+import com.fs.starfarer.coreui.refit.FighterPickerDialog
+import com.fs.starfarer.coreui.refit.WeaponPickerDialog
 import org.starficz.UIFramework.*
-import org.starficz.UIFramework.ReflectionUtils.getMethodsMatching
-import org.starficz.UIFramework.allChildsWithMethod
-import org.starficz.UIFramework.getChildrenCopy
 import org.starficz.refitfilters.PickerPanelHelpers.setPickerPanelHeight
 import org.starficz.refitfilters.PickerPanelHelpers.sortAndFilterList
 import org.starficz.refitfilters.filterpanels.createDamageTypeRangeSliderFilterPanel
 import org.starficz.refitfilters.filterpanels.createSearchBarFilterPanel
 import org.starficz.refitfilters.filterpanels.createWeaponTypesFilterPanel
+import rolflectionlib.ui.UiUtil
 import java.util.Comparator
 
 data class PickerPanelOffset(
@@ -42,27 +41,20 @@ object FilterPanelCreator {
     }
 
     fun modifyFilterPanel(coreUI: UIPanelAPI, pickerPanelType: PickerPanelType) {
-        // get the weaponDialogPanel that hasnt been modified if possible, relevant for clicking between weapon slots
-        val panelMethodName = when(pickerPanelType){
-            PickerPanelType.Weapons -> "getPickedWeaponSpec"
-            PickerPanelType.Fighters -> "getPickedFighterSpec"
-        }
-        val filterData = when(pickerPanelType){
-            PickerPanelType.Weapons -> weaponFilterData
-            PickerPanelType.Fighters -> fighterFilterData
+        // get the weaponDialogPanel that hasn't been modified if possible, relevant for clicking between weapon slots
+        val (filterData, targetClass) = when (pickerPanelType) {
+            PickerPanelType.Weapons -> Pair(weaponFilterData, WeaponPickerDialog::class.java)
+            PickerPanelType.Fighters -> Pair(fighterFilterData, FighterPickerDialog::class.java)
         }
 
-        val pickerPanel = coreUI.allChildsWithMethod(panelMethodName).firstOrNull { wdp ->
-            val innerPanel = wdp.invoke("getInnerPanel") as? UIPanelAPI
-            innerPanel?.getChildrenCopy()?.any { it is CustomPanelAPI && it.plugin is ExtendableCustomUIPanelPlugin } == false
-        } as? UIPanelAPI ?: return
+        val children = UiUtil.utils.getChildrenCopy(coreUI)
+        val pickerPanel = children.firstOrNull { it.javaClass == targetClass } as? UIPanelAPI ?: return
+        val innerPanel = UiUtil.utils.confirmDialogGetInnerPanel(pickerPanel) ?: return
+        val uiElements = UiUtil.utils.getChildrenCopy(innerPanel);
 
-        val innerPanel = pickerPanel.invoke("getInnerPanel") as? UIPanelAPI ?: return
-
-        val uiElements = innerPanel.getChildrenCopy()
         if (uiElements.any { it is CustomPanelAPI && it.plugin is ExtendableCustomUIPanelPlugin }) return // return if added
 
-        val existingFiltersIndex = uiElements.indexOfFirst { it.getMethodsMatching("addItem").isNotEmpty() }
+        val existingFiltersIndex = uiElements.indexOfFirst { it.javaClass == UiUtil.weaponPickerListClass }
 
         val currentlySelected = uiElements.getOrNull(existingFiltersIndex-2)
         val currentlyMountedText = uiElements.getOrNull(existingFiltersIndex-1)
@@ -81,7 +73,7 @@ object FilterPanelCreator {
                     )
                 }
 
-                sortAndFilterList(itemsList, WeaponSpecAPI::class.java, ::weaponFiltered, weaponFilterData,
+                sortAndFilterList(pickerPanelType, itemsList, ::weaponFiltered, weaponFilterData,
                     comparator, searchString, RFSettings.searchBarBehaviour)
             }
             PickerPanelType.Fighters -> {
@@ -93,14 +85,14 @@ object FilterPanelCreator {
                     )
                 }
 
-                sortAndFilterList(itemsList, FighterWingSpecAPI::class.java, ::fighterFiltered, fighterFilterData,
+                sortAndFilterList(pickerPanelType, itemsList, ::fighterFiltered, fighterFilterData,
                     comparator, searchString, RFSettings.searchBarBehaviour)
             }
         }
 
         // add the filter panels if required
         val searchBarFilterPanel =
-            innerPanel.createSearchBarFilterPanel(rowWidth, filterRowHeight, pickerPanel, filterData)
+            innerPanel.createSearchBarFilterPanel(rowWidth, filterRowHeight, pickerPanel, innerPanel, filterData)
         val weaponTypesFilterPanel = if(RFSettings.WeaponTypePanelOrder != 0 && filterData is WeaponFilterData)
             innerPanel.createWeaponTypesFilterPanel(rowWidth, filterRowHeight, pickerPanel, filterData) else null
         val damageTypeRangeSliderFilterPanel = if(RFSettings.DamageTypeRangeSliderOrder != 0)
@@ -136,7 +128,7 @@ object FilterPanelCreator {
         }
 
         var pickerHeight = itemsListHeight + 12f +
-                innerPanel.getChildrenCopy().filter { it !== itemsList }.sumOf { it.height.toDouble() }.toFloat()
+                UiUtil.utils.getChildrenCopy(innerPanel).filter { it !== itemsList }.sumOf { it.height.toDouble() }.toFloat()
 
         // position all the panels correctly, make sure to special case the first element based on if we have a weapon selected or not
         activeFilterPanels.forEachIndexed { index, filterPanel ->
@@ -146,8 +138,8 @@ object FilterPanelCreator {
                     pickerHeight += 3
                 }
                 else {
-                    filterPanel.yAlignOffset = innerPanel.top - filterPanel.top - 2f
-                    filterPanel.xAlignOffset = 5f
+                    UiUtil.utils.positionSetYAlignOffset(filterPanel.position, innerPanel.top - filterPanel.top - 2f)
+                    UiUtil.utils.positionSetXAlignOffset(filterPanel.position, 5f)
                 }
             }
             else{
@@ -161,8 +153,8 @@ object FilterPanelCreator {
 
         if (pickerPanelType == PickerPanelType.Fighters) pickerPanel.width -= 5f
 
-        setPickerPanelHeight(pickerHeight, pickerPanel)
-        innerPanel.yAlignOffset = pickerPanel.top - innerPanel.top
+        setPickerPanelHeight(pickerHeight, pickerPanel, pickerPanelType)
+        UiUtil.utils.positionSetYAlignOffset(innerPanel.position,pickerPanel.top - innerPanel.top)
 
 //        if (openedFromCampaign && RFSettings.enableWeaponSimulation!!) {
 //            addSimulationTrigger(mainElement) TODO: actually finally implement the weapon sim

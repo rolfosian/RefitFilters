@@ -8,78 +8,298 @@ import com.fs.starfarer.api.campaign.CustomUIPanelPlugin
 import com.fs.starfarer.api.ui.*
 import com.fs.starfarer.api.ui.TooltipMakerAPI.TooltipLocation
 import com.fs.starfarer.ui.impl.StandardTooltipV2Expandable
-import org.starficz.UIFramework.ReflectionUtils.getMethodsMatching
-import org.starficz.UIFramework.ReflectionUtils.invoke
-import org.starficz.UIFramework.ReflectionUtils.set
+
+import rolflectionlib.ui.UiUtil
 import java.awt.Color
+
+internal var BoxedUIElement.fader: Fader?
+    get() = UiUtil.utils.uiComponentGetFader(this.wrappedComponent)
+    set(fader) { UiUtil.utils.uiComponentSetFader(this.wrappedComponent, fader) }
+
+internal var BoxedUIElement.opacity: Float
+    get() = UiUtil.utils.getOpacity(this.wrappedComponent)
+    set(alpha) { UiUtil.utils.setOpacity(this.wrappedComponent, alpha) }
+
+internal var BoxedUIElement.parent: UIPanelAPI?
+    get() = UiUtil.utils.getParent(this.wrappedComponent)
+    set(parent) { UiUtil.utils.setParent(this.wrappedComponent, parent) }
+
+internal fun BoxedUIElement.setMouseOverPad(pad1: Float, pad2: Float, pad3: Float, pad4: Float) {
+    UiUtil.utils.setMouseOverPad(this.wrappedComponent, pad1, pad2, pad3, pad4)
+}
+
+internal val BoxedUIElement.mouseoverHighlightFader: Fader?
+    get() = UiUtil.utils.getMouseoverHighlightFader(this.wrappedComponent)
+
+internal val BoxedUIElement.topAncestor: UIPanelAPI?
+    get() = UiUtil.utils.findTopAncestor(this.wrappedComponent)
+
+internal fun BoxedUIElement.setTooltipOffsetFromCenter(xPad: Float, yPad: Float){
+    UiUtil.utils.setTooltipOffsetFromCenter(this.wrappedComponent, xPad, yPad)
+}
+
+internal fun BoxedUIElement.setTooltipPositionRelativeToAnchor(xPad: Float, yPad: Float, anchor: UIComponentAPI){
+    UiUtil.utils.setTooltipPositionRelativeToAnchor(this.wrappedComponent, xPad, yPad, anchor)
+}
+
+internal fun BoxedUIElement.setSlideData(xOffset: Float, yOffset: Float, durationIn: Float, durationOut: Float){
+    UiUtil.utils.setSlideData(this.wrappedComponent, xOffset, yOffset, durationIn, durationOut)
+}
+
+internal fun BoxedUIElement.slideIn(){
+    UiUtil.utils.slideIn(this.wrappedComponent)
+}
+
+internal fun BoxedUIElement.slideOut(){
+    UiUtil.utils.slideOut(this.wrappedComponent)
+}
+
+internal fun BoxedUIElement.forceSlideIn(){
+    UiUtil.utils.forceSlideIn(this.wrappedComponent)
+}
+
+internal fun BoxedUIElement.forceSlideOut(){
+    UiUtil.utils.forceSlideOut(this.wrappedComponent)
+}
+
+internal val BoxedUIElement.sliding: Boolean
+    get() = UiUtil.utils.isSliding(this.wrappedComponent)
+
+internal val BoxedUIElement.slidIn: Boolean
+    get() = UiUtil.utils.isSlidIn(this.wrappedComponent)
+
+internal val BoxedUIElement.slidOut: Boolean
+    get() = UiUtil.utils.isSlidOut(this.wrappedComponent)
+
+internal val BoxedUIElement.slidingIn: Boolean
+    get() = UiUtil.utils.isSlidingIn(this.wrappedComponent)
+
+internal var BoxedUIElement.enabled: Boolean
+    get() = UiUtil.utils.isEnabled(this.wrappedComponent)
+    set(enabled) {
+        UiUtil.utils.setEnabled(this.wrappedComponent, enabled)
+    }
+
+internal var BoxedUIElement.width
+    get() = position.width
+    set(width) { position.setSize(width, position.height) }
+
+internal var BoxedUIElement.height
+    get() = position.height
+    set(height) { position.setSize(position.width, height) }
+
+internal fun BoxedUIElement.setSize(width: Float, height: Float){
+    position.setSize(width, height)
+}
+
+internal val BoxedUIElement.x
+    get() = position.x
+
+internal val BoxedUIElement.y
+    get() = position.y
+
+internal val BoxedUIElement.left
+    get() = x
+
+internal val BoxedUIElement.bottom
+    get() = y
+
+internal val BoxedUIElement.top
+    get() = y + height
+
+internal val BoxedUIElement.right
+    get() = x + width
+
+internal fun BoxedUIElement.setLocation(x: Float, y: Float){
+    position.setLocation(x, y)
+}
+
+internal val BoxedUIElement.centerX
+    get() = position.centerX
+
+internal val BoxedUIElement.centerY
+    get() = position.centerY
+
+internal var BoxedUIElement.xAlignOffset: Float
+    get() = UiUtil.utils.positionGetXAlignOffset(this.position)
+    set(xOffset) { UiUtil.utils.positionSetXAlignOffset(this.position, xOffset) }
+
+internal var BoxedUIElement.yAlignOffset: Float
+    get() = UiUtil.utils.positionGetYAlignOffset(this.position)
+    set(yOffset) { UiUtil.utils.positionSetYAlignOffset(this.position, yOffset) }
+
+internal fun BoxedUIElement.anchorInTopLeftOfParent(xPad: Float = 0f, yPad: Float = 0f) {
+    this.position.inTL(xPad, yPad)
+}
+internal fun BoxedUIElement.anchorInTopRightOfParent(xPad: Float = 0f, yPad: Float = 0f) {
+    this.position.inTR(xPad, yPad)
+}
+internal fun BoxedUIElement.anchorInTopMiddleOfParent(yPad: Float = 0f) {
+    this.position.inTMid(yPad)
+}
+internal fun BoxedUIElement.anchorInBottomLeftOfParent(xPad: Float = 0f, yPad: Float = 0f) {
+    this.position.inBL(xPad, yPad)
+}
+internal fun BoxedUIElement.anchorInBottomMiddleOfParent(yPad: Float = 0f) {
+    this.position.inBMid(yPad)
+}
+internal fun BoxedUIElement.anchorInBottomRightOfParent(xPad: Float = 0f, yPad: Float = 0f) {
+    this.position.inBR(xPad, yPad)
+}
+internal fun BoxedUIElement.anchorInLeftMiddleOfParent(xPad: Float = 0f) {
+    this.position.inLMid(xPad)
+}
+internal fun BoxedUIElement.anchorInRightMiddleOfParent(xPad: Float = 0f) {
+    this.position.inRMid(xPad)
+}
+internal fun BoxedUIElement.anchorInCenterOfParent() {
+    UiUtil.utils.positionRelativeTo(this.position, null, 0.5f, 0.5f, -0.5f, -0.5f, 0f, 0f)
+}
+
+internal val BoxedUIElement.previousComponent
+    get() = UiUtil.utils.getChildrenCopy(this.wrappedComponent as UIPanelAPI).lastOrNull()
+
+internal fun BoxedUIElement.anchorRightOfPreviousMatchingTop(padding: Float = 0f) {
+    UiUtil.utils.getChildrenCopy(parent)?.dropLast(1)?.lastOrNull()?.let { this.position.rightOfTop(it, padding) }
+}
+internal fun BoxedUIElement.anchorLeftOfPreviousMatchingTop(padding: Float = 0f) {
+    UiUtil.utils.getChildrenCopy(parent)?.dropLast(1)?.lastOrNull()?.let { this.position.leftOfTop(it, padding) }
+}
+internal fun BoxedUIElement.anchorLeftOfPreviousMatchingMid(padding: Float = 0f) {
+    UiUtil.utils.getChildrenCopy(parent)?.dropLast(1)?.lastOrNull()?.let { this.position.leftOfMid(it, padding) }
+}
+internal fun BoxedUIElement.anchorLeftOfPreviousMatchingBottom(padding: Float = 0f) {
+    UiUtil.utils.getChildrenCopy(parent)?.dropLast(1)?.lastOrNull()?.let { this.position.leftOfBottom(it, padding) }
+}
+internal fun BoxedUIElement.anchorRightOfPreviousMatchingMid(padding: Float = 0f) {
+    UiUtil.utils.getChildrenCopy(parent)?.dropLast(1)?.lastOrNull()?.let { this.position.rightOfMid(it, padding) }
+}
+internal fun BoxedUIElement.anchorRightOfPreviousMatchingBottom(padding: Float = 0f) {
+    UiUtil.utils.getChildrenCopy(parent)?.dropLast(1)?.lastOrNull()?.let { this.position.rightOfBottom(it, padding) }
+}
+internal fun BoxedUIElement.anchorAbovePreviousMatchingLeft(padding: Float = 0f) {
+    UiUtil.utils.getChildrenCopy(parent)?.dropLast(1)?.lastOrNull()?.let { this.position.aboveLeft(it, padding) }
+}
+internal fun BoxedUIElement.anchorAbovePreviousMatchingMid(padding: Float = 0f) {
+    UiUtil.utils.getChildrenCopy(parent)?.dropLast(1)?.lastOrNull()?.let { this.position.aboveMid(it, padding) }
+}
+internal fun BoxedUIElement.anchorAbovePreviousMatchingRight(padding: Float = 0f) {
+    UiUtil.utils.getChildrenCopy(parent)?.dropLast(1)?.lastOrNull()?.let { this.position.aboveRight(it, padding) }
+}
+internal fun BoxedUIElement.anchorBelowPreviousMatchingLeft(padding: Float = 0f) {
+    UiUtil.utils.getChildrenCopy(parent)?.dropLast(1)?.lastOrNull()?.let { this.position.belowLeft(it, padding) }
+}
+internal fun BoxedUIElement.anchorBelowPreviousMatchingMid(padding: Float = 0f) {
+    UiUtil.utils.getChildrenCopy(parent)?.dropLast(1)?.lastOrNull()?.let { this.position.belowMid(it, padding) }
+}
+internal fun BoxedUIElement.anchorBelowPreviousMatchingRight(padding: Float = 0f) {
+    UiUtil.utils.getChildrenCopy(parent)?.dropLast(1)?.lastOrNull()?.let { this.position.belowRight(it, padding) }
+}
+internal fun BoxedUIElement.anchorToPreviousMatchingCenter(xPad: Float = 0f, yPad: Float = 0f) {
+    val parent = this.parent ?: return; val children = parent.getChildrenCopy(); if (children.size <= 1) return
+    val anchor = children.dropLast(1).lastOrNull()
+    anchor?.let { nonNullAnchor ->
+        UiUtil.utils.positionRelativeTo(this.position, nonNullAnchor.position, 0.5f, 0.5f, -0.5f, -0.5f, xPad, yPad)
+    }
+}
+
+internal fun BoxedUIElement.addTooltip(
+    location: TooltipLocation,
+    width: Float,
+    padding: Float? = null,
+    lambda: (TooltipMakerAPI) -> Unit) {
+    val tooltip = object: StandardTooltipV2Expandable(width, false, true) {
+        override fun createImpl(p0: Boolean) {
+            lambda(this)
+        }
+    }
+
+    val tooltipClass = StandardTooltipV2Expandable::class.java
+    if(padding == null){
+        when(location){
+            TooltipLocation.LEFT -> UiUtil.utils.addTooltipLeft(this.wrappedComponent, tooltip)
+            TooltipLocation.RIGHT -> UiUtil.utils.addTooltipRight(this.wrappedComponent, tooltip)
+            TooltipLocation.ABOVE -> UiUtil.utils.addTooltipAbove(this.wrappedComponent, tooltip)
+            TooltipLocation.BELOW -> UiUtil.utils.addTooltipBelow(this.wrappedComponent, tooltip)
+        }
+    }
+    else{
+        when(location){
+            TooltipLocation.LEFT -> UiUtil.utils.addTooltipLeft(this.wrappedComponent, tooltip, padding)
+            TooltipLocation.RIGHT -> UiUtil.utils.addTooltipRight(this.wrappedComponent, tooltip, padding)
+            TooltipLocation.ABOVE -> UiUtil.utils.addTooltipAbove(this.wrappedComponent, tooltip, padding)
+            TooltipLocation.BELOW -> UiUtil.utils.addTooltipBelow(this.wrappedComponent, tooltip, padding)
+        }
+    }
+}
 
 // UIComponentAPI extensions that expose UIComponent fields/methods
 internal var UIComponentAPI.fader: Fader?
-    get() = invoke("getFader") as Fader?
-    set(fader) { invoke("setFader", fader) }
+    get() = UiUtil.utils.uiComponentGetFader(this)
+    set(fader) { UiUtil.utils.uiComponentSetFader(this, fader) }
 
 internal var UIComponentAPI.opacity: Float
-    get() = invoke("getOpacity") as Float
-    set(alpha) { invoke("setOpacity", alpha) }
+    get() = UiUtil.utils.getOpacity(this)
+    set(alpha) { UiUtil.utils.setOpacity(this, alpha) }
 
 internal var UIComponentAPI.parent: UIPanelAPI?
-    get() = invoke("getParent") as UIPanelAPI?
-    set(parent) { invoke("setParent", parent) }
+    get() = UiUtil.utils.getParent(this)
+    set(parent) { UiUtil.utils.setParent(this, parent) }
 
 internal fun UIComponentAPI.setMouseOverPad(pad1: Float, pad2: Float, pad3: Float, pad4: Float) {
-    invoke("setMouseOverPad", pad1, pad2, pad3, pad4)
+    UiUtil.utils.setMouseOverPad(this, pad1, pad2, pad3, pad4)
 }
 
 internal val UIComponentAPI.mouseoverHighlightFader: Fader?
-    get() = invoke("getMouseoverHighlightFader") as Fader?
+    get() = UiUtil.utils.getMouseoverHighlightFader(this)
 
 internal val UIComponentAPI.topAncestor: UIPanelAPI?
-    get() = invoke("findTopAncestor") as UIPanelAPI?
+    get() = UiUtil.utils.findTopAncestor(this)
 
 internal fun UIComponentAPI.setTooltipOffsetFromCenter(xPad: Float, yPad: Float){
-    invoke("setTooltipOffsetFromCenter", xPad, yPad)
+    UiUtil.utils.setTooltipOffsetFromCenter(this, xPad, yPad)
 }
 
 internal fun UIComponentAPI.setTooltipPositionRelativeToAnchor(xPad: Float, yPad: Float, anchor: UIComponentAPI){
-    invoke("setTooltipPositionRelativeToAnchor", xPad, yPad, anchor)
+    UiUtil.utils.setTooltipPositionRelativeToAnchor(this, xPad, yPad, anchor)
 }
 
 internal fun UIComponentAPI.setSlideData(xOffset: Float, yOffset: Float, durationIn: Float, durationOut: Float){
-    invoke("setSlideData", xOffset, yOffset, durationIn, durationOut)
+    UiUtil.utils.setSlideData(this, xOffset, yOffset, durationIn, durationOut)
 }
 
 internal fun UIComponentAPI.slideIn(){
-    invoke("slideIn")
+    UiUtil.utils.slideIn(this)
 }
 
 internal fun UIComponentAPI.slideOut(){
-    invoke("slideOut")
+    UiUtil.utils.slideOut(this)
 }
 
 internal fun UIComponentAPI.forceSlideIn(){
-    invoke("forceSlideIn")
+    UiUtil.utils.forceSlideIn(this)
 }
 
 internal fun UIComponentAPI.forceSlideOut(){
-    invoke("forceSlideOut")
+    UiUtil.utils.forceSlideOut(this)
 }
 
 internal val UIComponentAPI.sliding: Boolean
-    get() = invoke("isSliding") as Boolean
+    get() = UiUtil.utils.isSliding(this)
 
 internal val UIComponentAPI.slidIn: Boolean
-    get() = invoke("isSlidIn") as Boolean
+    get() = UiUtil.utils.isSlidIn(this)
 
 internal val UIComponentAPI.slidOut: Boolean
-    get() = invoke("isSlidOut") as Boolean
+    get() = UiUtil.utils.isSlidOut(this)
 
 internal val UIComponentAPI.slidingIn: Boolean
-    get() = invoke("isSlidingIn") as Boolean
+    get() = UiUtil.utils.isSlidingIn(this)
 
 internal var UIComponentAPI.enabled: Boolean
-    get() = invoke("isEnabled") as Boolean
+    get() = UiUtil.utils.isEnabled(this)
     set(enabled) {
-        invoke("setEnabled", enabled)
+        UiUtil.utils.setEnabled(this, enabled)
     }
 
 internal var UIComponentAPI.width
@@ -123,14 +343,12 @@ internal val UIComponentAPI.centerY
     get() = position.centerY
 
 internal var UIComponentAPI.xAlignOffset: Float
-    get() = position.invoke("getXAlignOffset") as Float
-    set(xOffset) { position.setXAlignOffset(xOffset) }
+    get() = UiUtil.utils.positionGetXAlignOffset(this.position)
+    set(xOffset) { UiUtil.utils.positionSetXAlignOffset(this.position, xOffset) }
 
 internal var UIComponentAPI.yAlignOffset: Float
-    get() = position.invoke("getYAlignOffset") as Float
-    set(yOffset) { position.setYAlignOffset(yOffset) }
-
-
+    get() = UiUtil.utils.positionGetYAlignOffset(this.position)
+    set(yOffset) { UiUtil.utils.positionSetYAlignOffset(this.position, yOffset) }
 
 internal fun UIComponentAPI.anchorInTopLeftOfParent(xPad: Float = 0f, yPad: Float = 0f) {
     this.position.inTL(xPad, yPad)
@@ -161,54 +379,53 @@ internal fun UIComponentAPI.anchorInCenterOfParent() {
     val paramTypes = listOf<Class<*>?>(this.position::class.java,
         floatType, floatType, floatType, floatType, floatType, floatType).toTypedArray()
 
-    this.position.getMethodsMatching("relativeTo", parameterTypes = paramTypes)[0]
-        .invoke(this.position, null, 0.5f, 0.5f, -0.5f, -0.5f, 0f, 0f)
+    UiUtil.utils.positionRelativeTo(this.position, null, 0.5f, 0.5f, -0.5f, -0.5f, 0f, 0f)
 }
 
 internal val UIPanelAPI.previousComponent
     get() = getChildrenCopy().lastOrNull()
 
 internal fun UIComponentAPI.anchorRightOfPreviousMatchingTop(padding: Float = 0f) {
-    parent?.getChildrenCopy()?.dropLast(1)?.lastOrNull()?.let { this.position.rightOfTop(it, padding) }
+    UiUtil.utils.getChildrenCopy(parent)?.dropLast(1)?.lastOrNull()?.let { this.position.rightOfTop(it, padding) }
 }
 internal fun UIComponentAPI.anchorLeftOfPreviousMatchingTop(padding: Float = 0f) {
-    parent?.getChildrenCopy()?.dropLast(1)?.lastOrNull()?.let { this.position.leftOfTop(it, padding) }
+    UiUtil.utils.getChildrenCopy(parent)?.dropLast(1)?.lastOrNull()?.let { this.position.leftOfTop(it, padding) }
 }
 internal fun UIComponentAPI.anchorLeftOfPreviousMatchingMid(padding: Float = 0f) {
-    parent?.getChildrenCopy()?.dropLast(1)?.lastOrNull()?.let { this.position.leftOfMid(it, padding) }
+    UiUtil.utils.getChildrenCopy(parent)?.dropLast(1)?.lastOrNull()?.let { this.position.leftOfMid(it, padding) }
 }
 internal fun UIComponentAPI.anchorLeftOfPreviousMatchingBottom(padding: Float = 0f) {
-    parent?.getChildrenCopy()?.dropLast(1)?.lastOrNull()?.let { this.position.leftOfBottom(it, padding) }
+    UiUtil.utils.getChildrenCopy(parent)?.dropLast(1)?.lastOrNull()?.let { this.position.leftOfBottom(it, padding) }
 }
 internal fun UIComponentAPI.anchorRightOfPreviousMatchingMid(padding: Float = 0f) {
-    parent?.getChildrenCopy()?.dropLast(1)?.lastOrNull()?.let { this.position.rightOfMid(it, padding) }
+    UiUtil.utils.getChildrenCopy(parent)?.dropLast(1)?.lastOrNull()?.let { this.position.rightOfMid(it, padding) }
 }
 internal fun UIComponentAPI.anchorRightOfPreviousMatchingBottom(padding: Float = 0f) {
-    parent?.getChildrenCopy()?.dropLast(1)?.lastOrNull()?.let { this.position.rightOfBottom(it, padding) }
+    UiUtil.utils.getChildrenCopy(parent)?.dropLast(1)?.lastOrNull()?.let { this.position.rightOfBottom(it, padding) }
 }
 internal fun UIComponentAPI.anchorAbovePreviousMatchingLeft(padding: Float = 0f) {
-    parent?.getChildrenCopy()?.dropLast(1)?.lastOrNull()?.let { this.position.aboveLeft(it, padding) }
+    UiUtil.utils.getChildrenCopy(parent)?.dropLast(1)?.lastOrNull()?.let { this.position.aboveLeft(it, padding) }
 }
 internal fun UIComponentAPI.anchorAbovePreviousMatchingMid(padding: Float = 0f) {
-    parent?.getChildrenCopy()?.dropLast(1)?.lastOrNull()?.let { this.position.aboveMid(it, padding) }
+    UiUtil.utils.getChildrenCopy(parent)?.dropLast(1)?.lastOrNull()?.let { this.position.aboveMid(it, padding) }
 }
 internal fun UIComponentAPI.anchorAbovePreviousMatchingRight(padding: Float = 0f) {
-    parent?.getChildrenCopy()?.dropLast(1)?.lastOrNull()?.let { this.position.aboveRight(it, padding) }
+    UiUtil.utils.getChildrenCopy(parent)?.dropLast(1)?.lastOrNull()?.let { this.position.aboveRight(it, padding) }
 }
 internal fun UIComponentAPI.anchorBelowPreviousMatchingLeft(padding: Float = 0f) {
-    parent?.getChildrenCopy()?.dropLast(1)?.lastOrNull()?.let { this.position.belowLeft(it, padding) }
+    UiUtil.utils.getChildrenCopy(parent)?.dropLast(1)?.lastOrNull()?.let { this.position.belowLeft(it, padding) }
 }
 internal fun UIComponentAPI.anchorBelowPreviousMatchingMid(padding: Float = 0f) {
-    parent?.getChildrenCopy()?.dropLast(1)?.lastOrNull()?.let { this.position.belowMid(it, padding) }
+    UiUtil.utils.getChildrenCopy(parent)?.dropLast(1)?.lastOrNull()?.let { this.position.belowMid(it, padding) }
 }
 internal fun UIComponentAPI.anchorBelowPreviousMatchingRight(padding: Float = 0f) {
-    parent?.getChildrenCopy()?.dropLast(1)?.lastOrNull()?.let { this.position.belowRight(it, padding) }
+    UiUtil.utils.getChildrenCopy(parent)?.dropLast(1)?.lastOrNull()?.let { this.position.belowRight(it, padding) }
 }
 internal fun UIComponentAPI.anchorToPreviousMatchingCenter(xPad: Float = 0f, yPad: Float = 0f) {
     val parent = this.parent ?: return; val children = parent.getChildrenCopy(); if (children.size <= 1) return
     val anchor = children.dropLast(1).lastOrNull()
     anchor?.let { nonNullAnchor ->
-        this.position.invoke("relativeTo", nonNullAnchor, 0.5f, 0.5f, -0.5f, -0.5f, xPad, yPad)
+        UiUtil.utils.positionRelativeTo(this.position, nonNullAnchor.position, 0.5f, 0.5f, -0.5f, -0.5f, xPad, yPad)
     }
 }
 
@@ -226,45 +443,34 @@ internal fun UIComponentAPI.addTooltip(
     val tooltipClass = StandardTooltipV2Expandable::class.java
     if(padding == null){
         when(location){
-            TooltipLocation.LEFT -> tooltipClass.invoke("addTooltipLeft", this, tooltip)
-            TooltipLocation.RIGHT -> tooltipClass.invoke("addTooltipRight", this, tooltip)
-            TooltipLocation.ABOVE -> tooltipClass.invoke("addTooltipAbove", this, tooltip)
-            TooltipLocation.BELOW -> tooltipClass.invoke("addTooltipBelow", this, tooltip)
+            TooltipLocation.LEFT -> UiUtil.utils.addTooltipLeft(this, tooltip)
+            TooltipLocation.RIGHT -> UiUtil.utils.addTooltipRight(this, tooltip)
+            TooltipLocation.ABOVE -> UiUtil.utils.addTooltipAbove(this, tooltip)
+            TooltipLocation.BELOW -> UiUtil.utils.addTooltipBelow(this, tooltip)
         }
     }
     else{
         when(location){
-            TooltipLocation.LEFT -> tooltipClass.invoke("addTooltipLeft", this, tooltip, padding)
-            TooltipLocation.RIGHT -> tooltipClass.invoke("addTooltipRight", this, tooltip, padding)
-            TooltipLocation.ABOVE -> tooltipClass.invoke("addTooltipAbove", this, tooltip, padding)
-            TooltipLocation.BELOW -> tooltipClass.invoke("addTooltipBelow", this, tooltip, padding)
+            TooltipLocation.LEFT -> UiUtil.utils.addTooltipLeft(this, tooltip, padding)
+            TooltipLocation.RIGHT -> UiUtil.utils.addTooltipRight(this, tooltip, padding)
+            TooltipLocation.ABOVE -> UiUtil.utils.addTooltipAbove(this, tooltip, padding)
+            TooltipLocation.BELOW -> UiUtil.utils.addTooltipBelow(this, tooltip, padding)
         }
     }
 }
 
 // UIPanelAPI extensions that expose UIPanel methods
 internal fun UIPanelAPI.getChildrenCopy(): List<UIComponentAPI> {
-    return invoke("getChildrenCopy") as List<UIComponentAPI>
+    return UiUtil.utils.getChildrenCopy(this)
 }
 
 internal fun UIPanelAPI.getChildrenNonCopy(): List<UIComponentAPI> {
-    return invoke("getChildrenNonCopy") as List<UIComponentAPI>
-}
-
-internal fun UIPanelAPI.findChildWithMethod(methodName: String): UIComponentAPI? {
-    return getChildrenCopy().find { it.getMethodsMatching(methodName).isNotEmpty() }
-}
-
-internal fun UIPanelAPI.allChildsWithMethod(methodName: String): List<UIComponentAPI> {
-    return getChildrenCopy().filter { it.getMethodsMatching(methodName).isNotEmpty() }
+    return UiUtil.utils.getChildrenNonCopy(this)
 }
 
 internal fun UIPanelAPI.clearChildren() {
-    invoke("clearChildren")
+    UiUtil.utils.clearChildren(this)
 }
-
-// Abstract base class for Boxed vanilla elements to fix vanilla jank / things with no API's (like images)
-abstract class BoxedUIElement(val boxedElement: UIComponentAPI)
 
 class BoxedUILabel(val uiLabel: LabelAPI): BoxedUIElement(uiLabel as UIComponentAPI),
     UIComponentAPI by (uiLabel as UIComponentAPI), LabelAPI by uiLabel {
@@ -272,34 +478,35 @@ class BoxedUILabel(val uiLabel: LabelAPI): BoxedUIElement(uiLabel as UIComponent
     override fun getOpacity() = uiLabel.opacity
     override fun setOpacity(opacity: Float) { uiLabel.opacity = opacity }
     override fun render(alphaMult: Float) { uiLabel.render(alphaMult) }
-    override fun getPosition() = uiLabel.position
+    override fun getPosition(): PositionAPI? = uiLabel.position
+    override fun getParent(): UIPanelAPI? = UiUtil.utils.labelGetParent(this.wrappedComponent)
 }
 
 class BoxedUIImage(val uiImage: UIComponentAPI): BoxedUIElement(uiImage), UIComponentAPI by uiImage {
-    var spriteName = uiImage.invoke("getSpriteName") as String
-        set(newSpriteName) { uiImage.invoke("setSprite", newSpriteName, true) }
-    var sprite = uiImage.invoke("getSprite") as Sprite
-        set(newSprite) { uiImage.invoke("setSprite", newSprite, true) }
+    var spriteName = UiUtil.utils.imagePanelGetSpriteName(uiImage)
+        set(newSpriteName) { UiUtil.utils.imagePanelSetSprite(uiImage, newSpriteName, true) }
+    var sprite = UiUtil.utils.imagePanelGetSprite(uiImage)
+        set(newSprite) { UiUtil.utils.imagePanelSetSprite(uiImage, newSprite, true) }
 
-    var borderColor = uiImage.invoke("getBorderColor") as Color
-        set(newColor) { uiImage.invoke("setBorderColor", newColor, true) }
+    var borderColor = UiUtil.utils.imagePanelGetBorderColor(uiImage)
+        set(newColor) { UiUtil.utils.imagePanelSetBorderColor(uiImage, newColor) }
 
-    var outline = uiImage.invoke("isWithOutline") as Boolean
-        set(withOutline) { uiImage.invoke("setWithOutline", withOutline) }
+    var outline = UiUtil.utils.imagePanelIsWithOutline(uiImage)
+        set(withOutline) { UiUtil.utils.imagePanelSetWithOutline(uiImage, withOutline) }
 
-    var textureClamp = uiImage.invoke("isTexClamp") as Boolean
-        set(texClamp) { uiImage.invoke("setTexClamp", texClamp) }
+    var textureClamp = UiUtil.utils.imagePanelIsTexClamp(uiImage)
+        set(texClamp) { UiUtil.utils.imagePanelSetTexClamp(uiImage, texClamp) }
 
-    var forceNoRounding = uiImage.invoke("isForceNoRounding") as Boolean
-        set(noRounding) { uiImage.invoke("setForceNoRounding", noRounding) }
+    var forceNoRounding = UiUtil.utils.imagePanelIsForceNoRounding(uiImage)
+        set(noRounding) { UiUtil.utils.imagePanelSetForceNoRounding(uiImage, noRounding) }
 
-    val originalAspectRatio = uiImage.invoke("getOriginalAR") as Float
+    val originalAspectRatio = UiUtil.utils.imagePanelGetOriginalAR(uiImage)
 
-    fun setStretch(stretch: Boolean) { uiImage.invoke("setStretch", stretch) }
-    fun setRenderSchematic(renderSchematic: Boolean) { uiImage.invoke("setRenderSchematic", renderSchematic) }
-    fun sizeToOriginalSpriteSize() { uiImage.invoke("autoSize") }
-    fun sizeToOriginalAspectRatioWithWidth(width: Float) { uiImage.invoke("autoSizeToWidth", width) }
-    fun sizeToOriginalAspectRatioWithHeight(height: Float) { uiImage.invoke("autoSizeToHeight", height) }
+    fun setStretch(stretch: Boolean) { UiUtil.utils.imagePanelSetStretch(uiImage, stretch) }
+    fun setRenderSchematic(renderSchematic: Boolean) { UiUtil.utils.imagePanelSetRenderSchematic(uiImage, renderSchematic) }
+    fun sizeToOriginalSpriteSize() {  }
+    fun sizeToOriginalAspectRatioWithWidth(width: Float) { UiUtil.utils.imagePanelAutoSizeToWidth(uiImage, width) }
+    fun sizeToOriginalAspectRatioWithHeight(height: Float) { UiUtil.utils.imagePanelAutoSizeToHeight(uiImage, height) }
 }
 
 internal fun UIPanelAPI.addPara(text: String, font: Font? = null, color: Color? = null,
@@ -309,7 +516,7 @@ internal fun UIPanelAPI.addPara(text: String, font: Font? = null, color: Color? 
     color?.let { tempTMAPI.setParaFontColor(it) }
     font?.let { tempTMAPI.setParaFont(getFontPath(font)) }
 
-    val para = if(highlightedText != null){
+    val para = if(highlightedText != null) {
         val (highlights, highlightColors) = highlightedText.unzip()
         tempTMAPI.addPara(text, 0f, highlightColors.toTypedArray(), *highlights.toTypedArray())
     } else {
@@ -317,7 +524,8 @@ internal fun UIPanelAPI.addPara(text: String, font: Font? = null, color: Color? 
     }
 
     this.addComponent(para as UIComponentAPI)
-    para.invoke("autoSize")
+    UiUtil.utils.labelAutoSize(para)
+
     return BoxedUILabel(para)
 }
 
@@ -325,8 +533,8 @@ internal fun UIPanelAPI.addImage(imageSpritePath: String, width: Float, height: 
     val tempPanel = Global.getSettings().createCustom(width, height, null)
     val tempTMAPI = tempPanel.createUIElement(width, height, false)
     tempTMAPI.addImage(imageSpritePath, width, height, 0f)
-    val tempTMAPIsUIPanel = tempTMAPI.getChildrenCopy()[0] as UIPanelAPI
-    val image = tempTMAPIsUIPanel.getChildrenCopy()[0]
+    val tempTMAPIsUIPanel = UiUtil.utils.getChildrenCopy(tempTMAPI)[0] as UIPanelAPI
+    val image = UiUtil.utils.getChildrenCopy(tempTMAPIsUIPanel)[0]
 
     this.addComponent(image)
     return BoxedUIImage(image)
@@ -367,8 +575,8 @@ internal fun UIPanelAPI.addButton(
 
     // hijack button and move it to UIPanel
     this.addComponent(button)
-    button.xAlignOffset = 0f
-    button.yAlignOffset = 0f
+    UiUtil.utils.positionSetXAlignOffset(button.position, 0f)
+    UiUtil.utils.positionSetYAlignOffset(button.position, 0f)
     return button
 }
 
@@ -388,8 +596,8 @@ internal fun UIPanelAPI.addAreaCheckbox(
         button.isChecked = flag.isEnabled
         button.onClick { flag.isEnabled = button.isChecked  }
     }
-    button.xAlignOffset = 0f
-    button.yAlignOffset = 0f
+    UiUtil.utils.positionSetXAlignOffset(button.position, 0f)
+    UiUtil.utils.positionSetYAlignOffset(button.position, 0f)
     return button
 }
 
@@ -402,7 +610,7 @@ internal class ButtonListener(button: ButtonAPI) : BaseCustomUIPanelPlugin() {
 
     init {
         val buttonListener = Global.getSettings().createCustom(0f, 0f, this)
-        button.invoke("setListener", buttonListener)
+        UiUtil.utils.buttonSetListener(button, buttonListener)
     }
     override fun buttonPressed(buttonId: Any?) { onClickFunctions.forEach { it() } }
     fun addOnClick(function: () -> Unit) { onClickFunctions.add(function) }
@@ -412,7 +620,7 @@ internal class ButtonListener(button: ButtonAPI) : BaseCustomUIPanelPlugin() {
 // Extension function for ButtonAPI
 internal fun ButtonAPI.onClick(function: () -> Unit) {
     // Use reflection to check if this button already has a listener
-    val existingListener = invoke("getListener")
+    val existingListener = UiUtil.utils.buttonGetListener(this)
     if (existingListener is CustomPanelAPI && existingListener.plugin is ButtonListener) {
         (existingListener.plugin as ButtonListener).addOnClick(function)
     } else {
@@ -424,16 +632,16 @@ internal fun ButtonAPI.onClick(function: () -> Unit) {
 
 // Custom CustomUIPanelPlugin extensions that map the plugin to the panel
 internal val ExtendableCustomUIPanelPlugin.width
-    get() = customPanel.width
+    get() = customPanel.position.width
 
 internal val ExtendableCustomUIPanelPlugin.height
-    get() = customPanel.height
+    get() = customPanel.position.height
 
 internal val ExtendableCustomUIPanelPlugin.x
-    get() = customPanel.x
+    get() = customPanel.position.x
 
 internal val ExtendableCustomUIPanelPlugin.y
-    get() = customPanel.y
+    get() = customPanel.position.y
 
 internal val ExtendableCustomUIPanelPlugin.left
     get() = x
@@ -448,17 +656,17 @@ internal val ExtendableCustomUIPanelPlugin.right
     get() = x + width
 
 internal val ExtendableCustomUIPanelPlugin.centerX
-    get() = customPanel.centerX
+    get() = customPanel.position.centerX
 
 internal val ExtendableCustomUIPanelPlugin.centerY
-    get() = customPanel.centerY
+    get() = customPanel.position.centerY
 
 internal val ExtendableCustomUIPanelPlugin.xAlignOffset
-    get() = customPanel.xAlignOffset
+    get() = UiUtil.utils.positionGetXAlignOffset(customPanel.position)
 
 internal val ExtendableCustomUIPanelPlugin.yAlignOffset
-    get() = customPanel.yAlignOffset
+    get() = UiUtil.utils.positionGetYAlignOffset(customPanel.position)
 
 internal fun CustomPanelAPI.setPlugin(plugin: CustomUIPanelPlugin) {
-    set(value=plugin)
+    UiUtil.customPanelPluginVarHandle.set(this, plugin)
 }

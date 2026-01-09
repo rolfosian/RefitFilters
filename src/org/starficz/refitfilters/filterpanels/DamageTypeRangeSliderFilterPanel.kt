@@ -7,8 +7,8 @@ import org.lazywizard.lazylib.opengl.ColorUtils.glColor
 import org.lwjgl.opengl.GL11
 import org.starficz.UIFramework.*
 import org.starficz.UIFramework.Font
-import org.starficz.UIFramework.anchorInTopLeftOfParent
-import org.starficz.UIFramework.anchorToPreviousMatchingCenter
+//import org.starficz.UIFramework.anchorInTopLeftOfParent
+//import org.starficz.UIFramework.anchorToPreviousMatchingCenter
 import org.starficz.UIFramework.onClick
 import org.starficz.refitfilters.*
 import java.awt.Color
@@ -274,7 +274,7 @@ fun UIPanelAPI.createDamageTypeRangeSliderFilterPanel(
                     upperNodeHovered = false
                 }
 
-                onHeld { event ->
+                onMouseHeld { event ->
                     val nodeStartCenterXPos = left + minBarLeftPad + tickThickness/2
                     val lowerNodeXPos = mapRangeToXOffset(lowerRange) + nodeStartCenterXPos
                     val upperNodeXPos = mapRangeToXOffset(upperRange) + nodeStartCenterXPos
@@ -299,24 +299,24 @@ fun UIPanelAPI.createDamageTypeRangeSliderFilterPanel(
             val startingTickXPos = minBarLeftPad + tickThickness/2 - 1
             val minRangeString = minRange.let { if (it < 10000) it.toString() else "${it / 1000}K" }
             Text(minRangeString, Font.VICTOR_14, Misc.getTextColor()) {
-                anchorInTopLeftOfParent(startingTickXPos - position.width/2, 0f)
+                anchorInTopLeftOfParent(startingTickXPos - position!!.width/2, 0f)
             }
 
             val oneThirdIndex = ((sliderTickRanges.size - 1)/3f).roundToInt()
             val oneThirdString = sliderTickRanges[oneThirdIndex].let { if (it < 10000) it.toString() else "${it / 1000}K" }
             Text(oneThirdString, Font.VICTOR_14, Misc.getTextColor()) {
-                anchorInTopLeftOfParent(startingTickXPos + tickXOffsets[oneThirdIndex] - position.width/2, 0f)
+                anchorInTopLeftOfParent(startingTickXPos + tickXOffsets[oneThirdIndex] - position!!.width /2, 0f)
             }
 
             val twoThirdIndex = ((sliderTickRanges.size - 1) * 2 / 3f).roundToInt()
             val twoThirdsString = sliderTickRanges[twoThirdIndex].let { if (it < 10000) it.toString() else "${it / 1000}K" }
             Text(twoThirdsString, Font.VICTOR_14, Misc.getTextColor()) {
-                anchorInTopLeftOfParent(startingTickXPos + tickXOffsets[twoThirdIndex] - position.width/2, 0f)
+                anchorInTopLeftOfParent(startingTickXPos + tickXOffsets[twoThirdIndex] - position!!.width/2, 0f)
             }
 
             val maxRangeString = sliderTickRanges.last().let { if (it < 10000) it.toString() else "${it / 1000}K" }
             Text(maxRangeString, Font.VICTOR_14, Misc.getTextColor()) {
-                anchorInTopLeftOfParent(startingTickXPos + tickXOffsets.last() - position.width/2, 0f)
+                anchorInTopLeftOfParent(startingTickXPos + tickXOffsets.last() - position!!.width/2, 0f)
             }
         }
     }

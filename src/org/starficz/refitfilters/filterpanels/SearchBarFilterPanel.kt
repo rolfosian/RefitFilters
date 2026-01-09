@@ -13,19 +13,18 @@ import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11
 import org.starficz.UIFramework.*
-import org.starficz.UIFramework.ReflectionUtils.getFieldsMatching
-import org.starficz.UIFramework.ReflectionUtils.getFieldsWithMethodsMatching
 import org.starficz.refitfilters.FilterData
 import org.starficz.refitfilters.PickerPanelHelpers
 import org.starficz.refitfilters.RFSettings
+import rolflectionlib.ui.UiUtil
 import java.awt.Toolkit
 import java.awt.datatransfer.DataFlavor
-
 
 fun UIPanelAPI.createSearchBarFilterPanel(
     width: Float,
     height: Float,
     pickerPanel: UIPanelAPI,
+    innerPanel: UIPanelAPI,
     filterData: FilterData
 ): CustomPanelAPI {
 
@@ -33,13 +32,13 @@ fun UIPanelAPI.createSearchBarFilterPanel(
     val baseColor = brightColor.darker()
     val bgColor = baseColor.darker().darker()
 
-    fun resetFilters(pickerPanel: UIPanelAPI) {
-        val filterButtonPanel = pickerPanel.getFieldsWithMethodsMatching("setChecked", numOfMethodParams = 2)
-            .firstOrNull()?.get(pickerPanel)
+    fun resetFilters(innerPanel: UIPanelAPI) {
+        val filterButtonPanel =
+            innerPanel.getChildrenCopy()
+                .firstOrNull { it.javaClass == UiUtil.weaponPickerListClass }
+                    as? UIPanelAPI
 
-        val filterButtons = filterButtonPanel?.getFieldsMatching(type = List::class.java)
-            ?.mapNotNull { it.get(filterButtonPanel) as? List<*> }
-            ?.firstOrNull { it.any { item -> item is ButtonAPI } } as List<ButtonAPI>?
+        val filterButtons = UiUtil.getButtonChildren(filterButtonPanel)
 
         filterButtons?.forEach { if(it.isEnabled && !it.isChecked) it.isChecked = true }
         filterData.reset()
@@ -53,7 +52,7 @@ fun UIPanelAPI.createSearchBarFilterPanel(
                     0f, Misc.getTextColor(), Misc.getHighlightColor(), "CTRL + R", "Middle Mouse Button")
             }
             onClick {
-                resetFilters(pickerPanel)
+                resetFilters(innerPanel)
                 this.isChecked = true
                 PickerPanelHelpers.filtersChanged(pickerPanel)
             }
@@ -108,7 +107,7 @@ fun UIPanelAPI.createSearchBarFilterPanel(
                         else searchText.text = "${filterData.currentSearch}|"
                     }
                     if (Mouse.isButtonDown(2)) {
-                        resetFilters(pickerPanel)
+                        resetFilters(innerPanel)
                         needsRefresh = true
                     }
                     // need to defer refresh to here as refreshing in plugin event listeners directly
@@ -187,13 +186,29 @@ fun UIPanelAPI.createSearchBarFilterPanel(
                     }
                     else if (event.eventValue == Keyboard.KEY_R && event.isCtrlDown){
                         event.consume()
-                        resetFilters(pickerPanel)
+                        resetFilters(innerPanel)
                         needsRefresh = true
                     }
                     else if (!event.isCtrlDown && !event.isAltDown && event.eventValue !in (2..11) &&
                         event.eventValue != Keyboard.KEY_RETURN && event.eventValue != Keyboard.KEY_NUMPADENTER)
                     {
                         if(appendCharIfPossible(event.eventChar)){
+                            event.consume()
+                        }
+                    }
+                }
+
+                onKeyHeld { event ->
+                    if (event.eventValue == Keyboard.KEY_BACK) {
+                        if (event.isShiftDown) deleteAll(event)
+                        else if (event.isCtrlDown) deleteLastWord(event)
+                        else deleteCharIfPossible(event)
+                        event.consume()
+
+                    } else if (!event.isCtrlDown && !event.isAltDown && event.eventValue !in (2..11) &&
+                        event.eventValue != Keyboard.KEY_RETURN && event.eventValue != Keyboard.KEY_NUMPADENTER
+                    ) {
+                        if (appendCharIfPossible(event.eventChar)) {
                             event.consume()
                         }
                     }

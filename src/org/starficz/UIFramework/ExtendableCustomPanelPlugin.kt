@@ -14,9 +14,10 @@ open class ExtendableCustomUIPanelPlugin(var customPanel: CustomPanelAPI) : Base
     private var onHoverFunctions: MutableList<(InputEventAPI) -> Unit> = mutableListOf()
     private var onHoverEnterFunctions: MutableList<(InputEventAPI) -> Unit> = mutableListOf()
     private var onHoverExitFunctions: MutableList<(InputEventAPI) -> Unit> = mutableListOf()
-    private var onHeldFunctions: MutableList<(InputEventAPI) -> Unit> = mutableListOf()
+    private var onMouseHeldFunctions: MutableList<(InputEventAPI) -> Unit> = mutableListOf()
     private var onKeyDownFunctions: MutableList<(InputEventAPI) -> Unit> = mutableListOf()
     private var onKeyUpFunctions: MutableList<(InputEventAPI) -> Unit> = mutableListOf()
+    private var onKeyHeldFunctions: MutableList<(InputEventAPI) -> Unit> = mutableListOf()
 
     private var renderBelowFunctions: MutableList<(Float) -> Unit> = mutableListOf()
     private var renderFunctions: MutableList<(Float) -> Unit> = mutableListOf()
@@ -80,7 +81,7 @@ open class ExtendableCustomUIPanelPlugin(var customPanel: CustomPanelAPI) : Base
                     hasClicked = false
                     onClickReleaseFunctions.forEach { it(event) }
                 }
-                if (Mouse.isButtonDown(0)) onHeldFunctions.forEach { it(event) }
+                if (Mouse.isButtonDown(0)) onMouseHeldFunctions.forEach { it(event) }
             } else {
                 if (isHovering) onHoverExitFunctions.forEach { it(event) }
                 isHovering = false
@@ -96,6 +97,7 @@ open class ExtendableCustomUIPanelPlugin(var customPanel: CustomPanelAPI) : Base
         events.filter { it.isKeyboardEvent }.forEach { event ->
             if (event.isKeyDownEvent) onKeyDownFunctions.forEach { it(event) }
             if (event.isKeyUpEvent) onKeyUpFunctions.forEach { it(event) }
+            if (!event.isConsumed && event.isRepeat) onKeyHeldFunctions.forEach { it(event) }
         }
     }
 
@@ -105,7 +107,8 @@ open class ExtendableCustomUIPanelPlugin(var customPanel: CustomPanelAPI) : Base
     fun onHover(function: (InputEventAPI) -> Unit) { onHoverFunctions.add(function) }
     fun onHoverEnter(function: (InputEventAPI) -> Unit) { onHoverEnterFunctions.add(function) }
     fun onHoverExit(function: (InputEventAPI) -> Unit) { onHoverExitFunctions.add(function) }
-    fun onHeld(function: (InputEventAPI) -> Unit) { onHeldFunctions.add(function) }
+    fun onMouseHeld(function: (InputEventAPI) -> Unit) { onMouseHeldFunctions.add(function) }
     fun onKeyDown(function: (InputEventAPI) -> Unit) { onKeyDownFunctions.add(function) }
     fun onKeyUp(function: (InputEventAPI) -> Unit) { onKeyUpFunctions.add(function) }
+    fun onKeyHeld(function: (InputEventAPI) -> Unit) { onKeyHeldFunctions.add(function) }
 }
