@@ -61,7 +61,7 @@ public abstract class BoxedUIElement implements UIComponentAPI {
     }
 
     public void setTooltipOffsetFromCenter(float xPad, float yPad) {
-        UiUtil.utils.setTooltipOffsetFromCenter(boxedElement, xPad, yPad);
+        UiUtil.utils.uiComponentsetTooltipOffsetFromCenter(boxedElement, xPad, yPad);
     }
 
     public void setTooltipPositionRelativeToAnchor(float xPad, float yPad, UIComponentAPI anchor) {

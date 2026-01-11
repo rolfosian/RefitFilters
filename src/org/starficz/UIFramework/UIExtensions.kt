@@ -35,7 +35,7 @@ internal val BoxedUIElement.topAncestor: UIPanelAPI?
     get() = UiUtil.utils.findTopAncestor(this.wrappedComponent)
 
 internal fun BoxedUIElement.setTooltipOffsetFromCenter(xPad: Float, yPad: Float){
-    UiUtil.utils.setTooltipOffsetFromCenter(this.wrappedComponent, xPad, yPad)
+    UiUtil.utils.uiComponentsetTooltipOffsetFromCenter(this.wrappedComponent, xPad, yPad)
 }
 
 internal fun BoxedUIElement.setTooltipPositionRelativeToAnchor(xPad: Float, yPad: Float, anchor: UIComponentAPI){
@@ -257,7 +257,7 @@ internal val UIComponentAPI.topAncestor: UIPanelAPI?
     get() = UiUtil.utils.findTopAncestor(this)
 
 internal fun UIComponentAPI.setTooltipOffsetFromCenter(xPad: Float, yPad: Float){
-    UiUtil.utils.setTooltipOffsetFromCenter(this, xPad, yPad)
+    UiUtil.utils.uiComponentsetTooltipOffsetFromCenter(this, xPad, yPad)
 }
 
 internal fun UIComponentAPI.setTooltipPositionRelativeToAnchor(xPad: Float, yPad: Float, anchor: UIComponentAPI){
@@ -480,6 +480,7 @@ class BoxedUILabel(val uiLabel: LabelAPI): BoxedUIElement(uiLabel as UIComponent
     override fun render(alphaMult: Float) { uiLabel.render(alphaMult) }
     override fun getPosition(): PositionAPI? = uiLabel.position
     override fun getParent(): UIPanelAPI? = UiUtil.utils.labelGetParent(this.wrappedComponent)
+    override fun setTooltipOffsetFromCenter(xPad: Float, yPad: Float) = UiUtil.utils.labelSetTooltipOffsetFromCenter(this.wrappedComponent, xPad, yPad)
 }
 
 class BoxedUIImage(val uiImage: UIComponentAPI): BoxedUIElement(uiImage), UIComponentAPI by uiImage {
